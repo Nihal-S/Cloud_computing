@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import json
+import requests
 import sqlite3
 app = Flask(__name__)
 
@@ -36,7 +37,26 @@ def read():
     conn.close()
     return str(rows)
  
-
+def if_hex(string):
+    for i in string:
+        if(i != 'a' or i != 'b' or i != 'c' or i != 'd' or i != 'e' or i != 'f' or not i.isDigit()):
+            return 0
+        else:
+            return 1
+@app.route('/api/v1/users', methods=['PUT'])
+def add():
+    name = request.json['name']
+    password = request.json['password']
+    insert = "'"+name+"','"+password+"'"
+    #return insert
+    names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "users","columns":"username","where":"username!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
+    #return str(names)
+    if(len(password) == 40 and if_hex(password) and name not in names):
+        r = requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"username,password","table":"users"})
+    else:
+        return '400'
+    
+    return "201"
 
 if __name__ == '__main__':
     app.run()
