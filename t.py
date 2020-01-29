@@ -70,9 +70,9 @@ def upcoming_ride():
 		#rv = (json.dumps(rv))
 		return json.dumps(rv)
 
-@app.route('/api/vi/rides/<string:ride_id>', methods=['POST'])
-def join_ride(ride_id):
-	if request.method == "POST":
+# @app.route('/api/vi/rides/<string:ride_id>', methods=['POST'])
+# def join_ride(ride_id):
+# 	if request.method == "POST":
 		
 
 if __name__ == '__main__':
