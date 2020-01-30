@@ -171,7 +171,7 @@ def join_rides(ride_id):
         ride_id = str(ride_id)
         ride_ids = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id","where":"ride_id!='2341356'"})
         ride_ids = ride_ids.json()
-        names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table":"users","columns":"username","where:":"username!='sdjhfjsdhfjkhfjksdhfjksfhkjdshfjksdh'"})
+        names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table":"users","columns":"username","where":"username!='sdjhfjsdhfjkhfjksdhfjksfhkjdshfjksdh'"})
         names = names.json()
         l = []
         for i in ride_ids:
@@ -182,13 +182,47 @@ def join_rides(ride_id):
             l.append(i[0])
         names = l
         username = request.json['username']
-        if((username in names) and (ride_id in ride_ids)):
-            
+        username = str(username)
+        # print(username)
+        # print(names)
+        # print(type(ride_id))
+        # print(ride_ids)
+        if((username in names) and (int(ride_id) in ride_ids)):
+            insert = "'"+ride_id+"','"+username+"'"
+            requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"ride_id,username","table":"join_ride"})
+            return '201'
+        else:
+            return '400'
     except Exception as e:
         print(e)
         return '500'  
 
 
+@app.route('/api/v1/rides/<string:ride_id>', methods=['DELETE'])
+def delete_ride(ride_id):
+    try:
+        ride_id = str(ride_id)
+        ride_ids = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id","where":"ride_id!='2341356'"})
+        ride_ids = ride_ids.json()
+        l = []
+        for i in ride_ids:
+            l.append(i[0])
+        ride_ids = l
+        print(ride_ids)
+        print(ride_id)
+        if(int(ride_id) in ride_ids):
+            conn = sqlite3.connect('Rideshare.db')
+            c = conn.cursor()
+            query = "DELETE FROM ride WHERE ride_id='"+ride_id+"'"
+            c.execute(query)
+            conn.commit()
+            conn.close()
+            return '201'
+        else:
+            return '400'
+    except Exception as e:
+        print(e)
+        return '500'
 
 if __name__ == '__main__':
     app.run()
