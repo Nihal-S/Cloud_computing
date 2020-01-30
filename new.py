@@ -165,5 +165,30 @@ def list_rides(ride_id):
         print(e)
         return '500'
 
+@app.route('/api/v1/rides/<string:ride_id>', methods=['POST'])
+def join_rides(ride_id):
+    try:
+        ride_id = str(ride_id)
+        ride_ids = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id","where":"ride_id!='2341356'"})
+        ride_ids = ride_ids.json()
+        names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table":"users","columns":"username","where:":"username!='sdjhfjsdhfjkhfjksdhfjksfhkjdshfjksdh'"})
+        names = names.json()
+        l = []
+        for i in ride_ids:
+            l.append(i[0])
+        ride_ids = l
+        l = []
+        for i in names:
+            l.append(i[0])
+        names = l
+        username = request.json['username']
+        if((username in names) and (ride_id in ride_ids)):
+            
+    except Exception as e:
+        print(e)
+        return '500'  
+
+
+
 if __name__ == '__main__':
     app.run()
