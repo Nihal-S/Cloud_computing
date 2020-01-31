@@ -5,15 +5,16 @@ c = conn.cursor()
 c.execute('''CREATE TABLE users
              (username VARCHAR(50) PRIMARY KEY, password VARCHAR(50) NOT NULL)''')
 
+c.execute('''CREATE TABLE Areaname
+             (Area_no INTEGER PRIMARY KEY, Area_name VARCHAR(50))''')
+
 c.execute('''CREATE TABLE ride
-            (ride_id INTEGER PRIMARY KEY AUTOINCREMENT,created_by VARCHAR(50) NOT NULL, timestamp VARCHAR(19) NOT NULL,source VARCHAR(25) NOT NULL,destination VARCHAR(25) NOT NULL) ''')
+            (ride_id INTEGER PRIMARY KEY AUTOINCREMENT,created_by VARCHAR(50) NOT NULL, timestamp VARCHAR(19) NOT NULL,source INTEGER NOT NULL,destination INTEGER NOT NULL, foreign key(created_by) references users(username) on delete cascade,foreign key(source) references Areaname(Area_no) on delete cascade,foreign key(destination) references Areaname(Area_no) on delete cascade)''')
 
 c.execute('''CREATE TABLE join_ride(   
-            ride_id INT(6),username VARCHAR(50))''')
+            ride_id INTEGER,username VARCHAR(50),foreign key(ride_id) references ride(ride_id) on delete cascade,foreign key(username) references users(username) on delete cascade)''')
 
 # Create table
-c.execute('''CREATE TABLE Areaname
-             (Area_no INT(5) PRIMARY KEY, Area_name VARCHAR(50))''')
 
 #Insert a row of data
 c.execute('''INSERT INTO Areaname VALUES
