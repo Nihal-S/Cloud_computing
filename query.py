@@ -4,7 +4,7 @@ c = conn.cursor()
 
 #c.execute("INSERT INTO users(username,password) VALUES(nihal,shdfiushgfiuysgfy)")
 # c. execute("DELETE FROM users WHERE username='userName'")
-c.execute("SELECT * FROM ride")
+c.execute("SELECT * FROM join_ride")
 # c.execute("DROP TABLE Areaname")
 # c.execute('''CREATE TABLE Areaname(Area_no INTEGER PRIMARY KEY, Area_name VARCHAR(50))''')
 # c.execute('''INSERT INTO Areaname(Area_no,Area_name) VALUES

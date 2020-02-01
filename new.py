@@ -97,10 +97,10 @@ def delete(name):
         for i in names:
             l.append(i[0])
         names = l
-        print(name)
-        print(names)
+        # print(name)
+        # print(names)
         if(name in names):
-            print("username='"+name+"'")
+            # print("username='"+name+"'")
             requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": "username='"+name+"'","column":"","table":"users","what":"delete"})
             res = jsonify()
             # res.statuscode = 201
@@ -127,21 +127,22 @@ def create_ride():
         names = names.json()
         areanames = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "Areaname","columns":"Area_no","where":"Area_name!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
         areanames =areanames.json()
-        print(areanames)
+        # print(areanames)
         l = []
         for i in names:
             l.append(i[0])
         names = l
         l = []
-        print(names)
+        # print(names)
         for i in areanames:
             l.append(i[0])
         areanames = l
         if(not created_by or not timestamp or not source or not destination):
             return jsonify(), 204
         print(areanames)
-        print(source,destination)
-        if(name in names and validate(timestamp) and source in areanames and destination in areanames):
+        print(source in areanames)
+        # print(source,destination)
+        if(name in names and validate(timestamp) and int(source) in areanames and int(destination) in areanames):
             print("inside ")
             insert = "'"+created_by+"',"+"'"+timestamp+"',"+"'"+source+"','"+destination+"'"
             print(insert)
@@ -165,14 +166,19 @@ def upcoming_ride():
         if request.method == "GET":
             source = request.args.get('source')
             destination = request.args.get('destination')
+            # print(source)
+            # print(destination)
             areanames = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "Areaname","columns":"Area_no","where":"Area_name!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
             l = []
+            areanames = areanames.json()
             for i in areanames:
                 l.append(i[0])
             areanames = l
             if(not source or not destination):
                 return jsonify(), 204
-            if(source in areanames and destination in areanames):
+            # print(areanames)
+            # print(int(source) in areanames and int(destination) in areanames)
+            if(int(source) in areanames and int(destination) in areanames):
                 names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id,created_by,timestamp","where":"source='"+source+"' and destination='"+destination+"'"})
                 names = names.json()
                 l = []
@@ -194,6 +200,10 @@ def upcoming_ride():
         res = jsonify()
         # res.statuscode = 500
         return res, 500
+
+@app.route('/api/v1/rides/', methods=['GET'])
+def show_204():
+    return jsonify(), 204
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['GET'])
 def list_rides(ride_id):
