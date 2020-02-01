@@ -31,15 +31,17 @@ def write_db():
     table = request.json['table']
     what = request.json['what']
     if(what == "delete"):
-        query = "DELETE FROM "+table+"where "+data
+        print("deleting")
+        print(data)
+        query = "DELETE FROM "+table+" where "+data
     else:
+        print("inserting")
         query = "INSERT INTO "+table+" ("+column+") "+"VALUES ("+data+")"
     c.execute(query)
     conn.commit()
     conn.close()
     res = jsonify()
-    res.statuscode = 201
-    return res
+    return res, 201
 
 #9
 @app.route('/api/v1/db/read', methods=['POST'])
@@ -71,17 +73,17 @@ def add():
         if(len(password) == 40 and if_hex(password) and name not in names):
             requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"username,password","table":"users","what":"insert"})
             res = jsonify()
-            res.statuscode = 201
-            return res
+            #res.statuscode = 201
+            return res, 201
         else:
             res = jsonify()
-            res.statuscode = 400
-            return res
+            #res.statuscode = 400
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res
+        # res.statuscode = 500
+        return res, 500
 
 
 
@@ -95,20 +97,23 @@ def delete(name):
         for i in names:
             l.append(i[0])
         names = l
+        print(name)
+        print(names)
         if(name in names):
-            requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": "username='"+name+"'","column":"username,password","table":"users","what":"delete"})
+            print("username='"+name+"'")
+            requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": "username='"+name+"'","column":"","table":"users","what":"delete"})
             res = jsonify()
-            res.statuscode = 201
-            return res
+            # res.statuscode = 201
+            return res, 200
         else:
             res = jsonify()
-            res.statuscode = 400
-            return res
+            # res.statuscode = 400
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res
+        # res.statuscode = 500
+        return res, 500
 
 @app.route('/api/v1/rides', methods=['POST'])
 def create_ride():
@@ -121,30 +126,38 @@ def create_ride():
         names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "users","columns":"username","where":"username!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
         names = names.json()
         areanames = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "Areaname","columns":"Area_no","where":"Area_name!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
+        areanames =areanames.json()
+        print(areanames)
         l = []
         for i in names:
             l.append(i[0])
         names = l
         l = []
+        print(names)
         for i in areanames:
             l.append(i[0])
         areanames = l
+        if(not created_by or not timestamp or not source or not destination):
+            return jsonify(), 204
+        print(areanames)
+        print(source,destination)
         if(name in names and validate(timestamp) and source in areanames and destination in areanames):
+            print("inside ")
             insert = "'"+created_by+"',"+"'"+timestamp+"',"+"'"+source+"','"+destination+"'"
             print(insert)
             r = requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"created_by,timestamp,source,destination","table":"ride","what":"insert"})
             res = jsonify()
-            res.statuscode = 201
-            return res
+            # res.statuscode = 201
+            return res, 201
         else:
             res = jsonify()
-            res.statuscode = 400
-            return res
+            # res.statuscode = 400
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res
+        # res.statuscode = 500
+        return res, 500
 
 @app.route('/api/v1/rides', methods=['GET'])
 def upcoming_ride():
@@ -157,6 +170,8 @@ def upcoming_ride():
             for i in areanames:
                 l.append(i[0])
             areanames = l
+            if(not source or not destination):
+                return jsonify(), 204
             if(source in areanames and destination in areanames):
                 names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id,created_by,timestamp","where":"source='"+source+"' and destination='"+destination+"'"})
                 names = names.json()
@@ -169,16 +184,16 @@ def upcoming_ride():
                     }
                     l.append(dict)
 
-                return jsonify(l)
+                return jsonify(l), 200
             else:
                 res = jsonify()
-                res.statuscode = 400
-                return res
+                # res.statuscode = 400
+                return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res
+        # res.statuscode = 500
+        return res, 500
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['GET'])
 def list_rides(ride_id):
@@ -191,8 +206,10 @@ def list_rides(ride_id):
         for i in ride_ids:
             l.append(str(i[0]))
         ride_ids = l
-        print(ride_id)
-        print(ride_ids)
+        # print(ride_id)
+        # print(ride_ids)
+        if(not ride_id):
+            return jsonify, 204
         if(ride_id in ride_ids):
             result = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id,created_by,timestamp,source,destination","where":"ride_id='"+ride_id+"'"})
             result1 = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "join_ride","columns":"username","where":"ride_id='"+ride_id+"'"})
@@ -210,16 +227,16 @@ def list_rides(ride_id):
                 "source":result[0][3],
                 "destination":result[0][4]
             }
-            return jsonify(dict)
+            return jsonify(dict), 200
         else:
             res = jsonify()
-            res.statuscode = 400
-            return res
+            # res.statuscode = 400
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res
+        # res.statuscode = 500
+        return res, 500
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['POST'])
 def join_rides(ride_id):
@@ -239,21 +256,23 @@ def join_rides(ride_id):
         names = l
         username = request.json['username']
         username = str(username)
+        if(not ride_id):
+            return jsonify(), 204
         if((username in names) and (int(ride_id) in ride_ids)):
             insert = "'"+ride_id+"','"+username+"'"
             requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"ride_id,username","table":"join_ride","what":"insert"})
             res = jsonify()
-            res.statuscode = 201
-            return res
+            # res.statuscode = 201
+            return res, 200
         else:
             res = jsonify()
-            res.statuscode = 400
-            return res
+            # res.statuscode = 400
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res  
+        # res.statuscode = 500
+        return res, 500
 
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['DELETE'])
@@ -271,17 +290,17 @@ def delete_ride(ride_id):
         if(int(ride_id) in ride_ids):
             requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": "ride_id='"+ride_id+"'","column":"username,password","table":"ride","what":"delete"})
             res = jsonify()
-            res.statuscode = 201
-            return res
+            # res.statuscode = 201
+            return res, 200
         else:
             res = jsonify()
-            res.statuscode = 400
-            return res
+            # res.statuscode = 400
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
-        res.statuscode = 500
-        return res
+        # res.statuscode = 500
+        return res, 500
 
 if __name__ == '__main__':
     app.run()
