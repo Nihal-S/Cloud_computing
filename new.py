@@ -313,4 +313,4 @@ def delete_ride(ride_id):
         return res, 500
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="172.31.84.76")
