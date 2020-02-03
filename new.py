@@ -115,52 +115,7 @@ def delete(name):
         # res.statuscode = 500
         return res, 500
 
-@app.route('/api/v1/rides', methods=['POST'])
-def create_ride():
-    try:
-        created_by = request.json['created_by']
-        timestamp = request.json['timestamp']
-        source = request.json['source']
-        destination = request.json['destination']
-        name = created_by
-        names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "users","columns":"username","where":"username!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
-        names = names.json()
-        areanames = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "Areaname","columns":"Area_no","where":"Area_name!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
-        areanames =areanames.json()
-        # print(areanames)
-        l = []
-        for i in names:
-            l.append(i[0])
-        names = l
-        l = []
-        # print(names)
-        for i in areanames:
-            l.append(i[0])
-        areanames = l
-        if(not created_by or not timestamp or not source or not destination):
-            return jsonify(), 400
-        print(areanames)
-        print(source in areanames)
-        # print(source,destination)
-        if(name in names and validate(timestamp) and int(source) in areanames and int(destination) in areanames):
-            print("inside ")
-            insert = "'"+created_by+"',"+"'"+timestamp+"',"+"'"+source+"','"+destination+"'"
-            print(insert)
-            r = requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"created_by,timestamp,source,destination","table":"ride","what":"insert"})
-            res = jsonify()
-            # res.statuscode = 201
-            return res, 201
-        else:
-            res = jsonify()
-            # res.statuscode = 400
-            return res, 400
-    except Exception as e:
-        print(e)
-        res = jsonify()
-        # res.statuscode = 500
-        return res, 500
-
-@app.route('/api/v1/rides', methods=['GET'])
+@app.route('/api/v1/rides', methods=['GET','POST'])
 def upcoming_ride():
     try:
         if request.method == "GET":
@@ -197,15 +152,49 @@ def upcoming_ride():
                 res = jsonify()
                 # res.statuscode = 400
                 return res, 400
+        if request.method == 'POST':
+            created_by = request.json['created_by']
+            timestamp = request.json['timestamp']
+            source = request.json['source']
+            destination = request.json['destination']
+            name = created_by
+            names = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "users","columns":"username","where":"username!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
+            names = names.json()
+            areanames = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "Areaname","columns":"Area_no","where":"Area_name!='hdughuhuhfguihufdhuidhgfuhduhgiu'"})
+            areanames =areanames.json()
+        # print(areanames)
+            l = []
+            for i in names:
+                l.append(i[0])
+            names = l
+            l = []
+        # print(names)
+            for i in areanames:
+                l.append(i[0])
+            areanames = l
+            if(not created_by or not timestamp or not source or not destination):
+                return jsonify(), 400
+            print(areanames)
+            print(source in areanames)
+        # print(source,destination)
+            if(name in names and validate(timestamp) and int(source) in areanames and int(destination) in areanames):
+                print("inside ")
+                insert = "'"+created_by+"',"+"'"+timestamp+"',"+"'"+source+"','"+destination+"'"
+                print(insert)
+                r = requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"created_by,timestamp,source,destination","table":"ride","what":"insert"})
+                res = jsonify()
+            # res.statuscode = 201
+                return res, 201
+            else:
+                res = jsonify()
+            # res.statuscode = 400
+                return res, 400            
     except Exception as e:
         print(e)
         res = jsonify()
         # res.statuscode = 500
         return res, 500
 
-# @app.route('/api/v1/rides/', methods=['GET'])
-# def show_204():
-#     return jsonify(), 204
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['GET'])
 def list_rides(ride_id):
