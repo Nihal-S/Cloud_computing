@@ -138,7 +138,7 @@ def create_ride():
             l.append(i[0])
         areanames = l
         if(not created_by or not timestamp or not source or not destination):
-            return jsonify(), 204
+            return jsonify(), 400
         print(areanames)
         print(source in areanames)
         # print(source,destination)
@@ -175,7 +175,7 @@ def upcoming_ride():
                 l.append(i[0])
             areanames = l
             if(not source or not destination):
-                return jsonify(), 204
+                return jsonify(), 400
             # print(areanames)
             # print(int(source) in areanames and int(destination) in areanames)
             if(int(source) in areanames and int(destination) in areanames):
@@ -189,8 +189,10 @@ def upcoming_ride():
                         "timestamp":i[2]
                     }
                     l.append(dict)
-
-                return jsonify(l), 200
+                if(len(l) == 0):
+                    return jsonify(l),204
+                else:
+                    return jsonify(l), 200
             else:
                 res = jsonify()
                 # res.statuscode = 400
@@ -201,9 +203,9 @@ def upcoming_ride():
         # res.statuscode = 500
         return res, 500
 
-@app.route('/api/v1/rides/', methods=['GET'])
-def show_204():
-    return jsonify(), 204
+# @app.route('/api/v1/rides/', methods=['GET'])
+# def show_204():
+#     return jsonify(), 204
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['GET'])
 def list_rides(ride_id):
@@ -219,7 +221,7 @@ def list_rides(ride_id):
         # print(ride_id)
         # print(ride_ids)
         if(not ride_id):
-            return jsonify, 204
+            return jsonify, 400
         if(ride_id in ride_ids):
             result = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"ride_id,created_by,timestamp,source,destination","where":"ride_id='"+ride_id+"'"})
             result1 = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "join_ride","columns":"username","where":"ride_id='"+ride_id+"'"})
@@ -237,7 +239,10 @@ def list_rides(ride_id):
                 "source":result[0][3],
                 "destination":result[0][4]
             }
-            return jsonify(dict), 200
+            if(len(dict) == 0):
+                return jsonify(dict), 204
+            else:
+                return jsonify(dict), 200
         else:
             res = jsonify()
             # res.statuscode = 400
@@ -277,7 +282,7 @@ def join_rides(ride_id):
         else:
             res = jsonify()
             # res.statuscode = 400
-            return res, 400
+            return res, 204
     except Exception as e:
         print(e)
         res = jsonify()
