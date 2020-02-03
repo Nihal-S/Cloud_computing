@@ -246,7 +246,7 @@ def list_rides(ride_id):
         else:
             res = jsonify()
             # res.statuscode = 400
-            return res, 400
+            return res, 204
     except Exception as e:
         print(e)
         res = jsonify()
