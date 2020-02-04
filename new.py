@@ -129,7 +129,7 @@ def upcoming_ride():
             for i in areanames:
                 l.append(i[0])
             areanames = l
-            if(not source or not destination):
+            if(not source or not destination and source == destination):
                 return jsonify(), 400
             # print(areanames)
             # print(int(source) in areanames and int(destination) in areanames)
@@ -193,7 +193,7 @@ def upcoming_ride():
         print(e)
         res = jsonify()
         # res.statuscode = 500
-        return res, 500
+        return res, 405
 
 
 @app.route('/api/v1/rides/<string:ride_id>', methods=['GET'])
@@ -235,7 +235,7 @@ def list_rides(ride_id):
         else:
             res = jsonify()
             # res.statuscode = 400
-            return res, 204
+            return res, 400
     except Exception as e:
         print(e)
         res = jsonify()
@@ -260,8 +260,19 @@ def join_rides(ride_id):
         names = l
         username = request.json['username']
         username = str(username)
+        users_already_in_ride = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table":"join_ride","columns":"username","where":"ride_id='"+ride_id+"'"})
+        users_already_in_ride = users_already_in_ride.json()
+        l = []
+        for i in users_already_in_ride:
+            l.append(i[0])
+        users_already_in_ride = l
+        created_by = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"created_by","where":"ride_id='"+ride_id+"'"})
+        created_by = created_by.json()
+        created_by = created_by[0]
         if(not ride_id):
             return jsonify(), 204
+        if((username in users_already_in_ride) and (username == created_by)):
+            return jsonify(),400
         if((username in names) and (int(ride_id) in ride_ids)):
             insert = "'"+ride_id+"','"+username+"'"
             requests.post('http://127.0.0.1:5000/api/v1/db/write', json={"insert": insert,"column":"ride_id,username","table":"join_ride","what":"insert"})
@@ -299,7 +310,7 @@ def delete_ride(ride_id):
         else:
             res = jsonify()
             # res.statuscode = 400
-            return res, 400
+            return res, 405
     except Exception as e:
         print(e)
         res = jsonify()
