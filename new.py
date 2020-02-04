@@ -271,9 +271,11 @@ def join_rides(ride_id):
         users_already_in_ride = l
         created_by = requests.post('http://127.0.0.1:5000/api/v1/db/read', json={"table": "ride","columns":"created_by","where":"ride_id='"+ride_id+"'"})
         created_by = created_by.json()
-        created_by = created_by[0]
+        created_by = created_by[0][0]
         if(not ride_id):
             return jsonify(), 204
+        print(created_by)
+        print(username)
         if((username in users_already_in_ride) or (username == created_by)):
             return jsonify(),400
         if((username in names) and (int(ride_id) in ride_ids)):
