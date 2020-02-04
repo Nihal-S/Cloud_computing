@@ -129,7 +129,10 @@ def upcoming_ride():
             for i in areanames:
                 l.append(i[0])
             areanames = l
-            if(not source or not destination and source == destination):
+            print(source)
+            print(destination)
+
+            if(not source or not destination or source == destination):
                 return jsonify(), 400
             # print(areanames)
             # print(int(source) in areanames and int(destination) in areanames)
@@ -271,7 +274,7 @@ def join_rides(ride_id):
         created_by = created_by[0]
         if(not ride_id):
             return jsonify(), 204
-        if((username in users_already_in_ride) and (username == created_by)):
+        if((username in users_already_in_ride) or (username == created_by)):
             return jsonify(),400
         if((username in names) and (int(ride_id) in ride_ids)):
             insert = "'"+ride_id+"','"+username+"'"
@@ -318,4 +321,5 @@ def delete_ride(ride_id):
         return res, 500
 
 if __name__ == '__main__':
-    app.run(host="172.31.84.76")
+    app.run()
+    # app.run(host="172.31.84.76")
